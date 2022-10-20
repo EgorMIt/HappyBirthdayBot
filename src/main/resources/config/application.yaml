@@ -1,0 +1,39 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: HappyBirthdayBot
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/HappyBirthdayBot
+    username: admin
+    password: admin
+  jpa:
+    database: POSTGRESQL
+  flyway:
+    locations: classpath:db/migration
+  sql:
+    init:
+      platform: postgres
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  rabbitmq:
+    host: localhost
+    virtualhost: /
+    port: 15672
+    username: guest
+    password: guest
+    exchange: rabbitmq.exchange
+    queue: rabbitmq.queue
+    routing-key: rabbitmq.routingkey
+    reply:
+      timeout: 60000
+    concurrent:
+      consumers: 1
+    max:
+      concurrent:
+        consumers: 1
+
+server:
+  port: 8081

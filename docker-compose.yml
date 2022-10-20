@@ -1,0 +1,18 @@
+services:
+  database:
+    image: postgres
+    container_name: HappyBirthdayData
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=HappyBirthdayBot
+    command: postgres -p 5432
+    ports:
+      - 5432:5432
+  flyway:
+    image: flyway/flyway
+    command: -url=jdbc:postgresql://db -schemas=myschema -user=root -password=P@ssw0rd -connectRetries=60 migrate
+    volumes:
+      - .:\D\Projects\IdeaProjects\HappyBirthdayBot\src\main\resources\db\migration
+    depends_on:
+      - database
