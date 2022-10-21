@@ -1,18 +1,21 @@
 services:
+  app:
+    image: 'school_yandex:latest'
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
   database:
     image: postgres
-    container_name: HappyBirthdayData
+    container_name: db
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=HappyBirthdayBot
-    command: postgres -p 5432
-    ports:
-      - 5432:5432
-  flyway:
-    image: flyway/flyway
-    command: -url=jdbc:postgresql://db -schemas=myschema -user=root -password=P@ssw0rd -connectRetries=60 migrate
-    volumes:
-      - .:\D\Projects\IdeaProjects\HappyBirthdayBot\src\main\resources\db\migration
-    depends_on:
-      - database
