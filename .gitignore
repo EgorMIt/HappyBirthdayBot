@@ -1,7 +1,6 @@
 ### Configs ###
 HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 bot-configuration.properties
@@ -34,4 +33,4 @@ build/
 ### VS Code ###
 .vscode/
 /database_data/
-/.mvn/
+/rabbitmq/
