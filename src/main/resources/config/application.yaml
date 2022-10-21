@@ -5,7 +5,7 @@ spring:
     name: HappyBirthdayBot
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/HappyBirthdayBot
+    url: jdbc:postgresql://localhost:5432/postgres
     username: admin
     password: admin
   jpa:
