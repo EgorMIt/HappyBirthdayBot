@@ -84,6 +84,8 @@ public class Bot extends TelegramLongPollingBot {
                                 sendDefaultMessageAndDeletePrevious(commandController.emptyCommand(update.getMessage()), wait);
                         case FRIEND ->
                                 sendDefaultMessageAndDeletePrevious(commandController.friendCommand(update.getMessage()), wait);
+                        case ADMIN ->
+                                sendDefaultMessageAndDeletePrevious(commandController.adminCommand(update.getMessage()), wait);
                     }
                 } else {
                     if (messageParser.hasDate(text)) {

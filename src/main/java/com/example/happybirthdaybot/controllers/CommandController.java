@@ -316,4 +316,24 @@ public class CommandController {
                 .build();
     }
 
+    /**
+     * Обработчик админской команды.
+     *
+     * @param message входящее сообщение.
+     * @return {@link SendMessage} ответное сообщение.
+     */
+    public SendMessage adminCommand(Message message) throws ApplicationException {
+        log.info("invoke command ADMIN: ({}, {})", message.getChatId(), message.getFrom().getUserName());
+
+        String answerText = "";
+        if (message.getChat().getType().equals("private") && message.getChatId() == 402975103) {
+            postman.CheckBirthdays();
+            answerText = "Начинаю рассылку уведомлений...";
+        }
+        return SendMessage.builder()
+                .chatId(message.getChatId())
+                .text(answerText)
+                .build();
+    }
+
 }

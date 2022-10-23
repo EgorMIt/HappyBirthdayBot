@@ -50,7 +50,7 @@ public class NotificationPostman {
     /**
      * Ежедневная проверка дат.
      */
-    @Scheduled(cron = "0 29 19 * * ?")
+    @Scheduled(cron = "0 00 23 * * ?")
     public void CheckBirthdays() throws ApplicationException {
         log.info("start checking birthdays");
 

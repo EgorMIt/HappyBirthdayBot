@@ -13,5 +13,6 @@ public enum Command {
     NOTIFICATIONS,
     SOON,
     WISHLIST,
-    EMPTY
+    EMPTY,
+    ADMIN
 }
