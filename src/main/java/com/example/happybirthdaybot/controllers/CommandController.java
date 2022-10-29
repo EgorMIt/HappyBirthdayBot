@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Обработчик запросов к {@link UserService}.
+ * Обработчик вызова команд.
  *
  * @author Egor Mitrofanov.
  */
@@ -223,9 +223,11 @@ public class CommandController {
             postman.sendNotification(message.getFrom().getId(), recipient);
         }
 
+        String answerText = recipients.isEmpty() ? Answers.SOON_NO_BIRTHDAYS : Answers.SOON_BIRTHDAYS;
+
         return SendMessage.builder()
                 .chatId(message.getChatId())
-                .text(Answers.SOON_BIRTHDAYS)
+                .text(answerText)
                 .build();
     }
 

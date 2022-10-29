@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     /**
      * Поиск пользователей по дню рождения.
      *
-     * @param day день рождения
+     * @param day   день рождения
      * @param month месяц рождения
      * @return Список {@link UserEntity}
      */

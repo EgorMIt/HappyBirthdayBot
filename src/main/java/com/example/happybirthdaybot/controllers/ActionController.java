@@ -22,7 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Обработчик запросов к {@link UserService}.
+ * Обработчик запросов действий, вызванных не командой.
  *
  * @author Egor Mitrofanov.
  */
