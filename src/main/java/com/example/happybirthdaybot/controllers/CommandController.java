@@ -247,6 +247,10 @@ public class CommandController {
                 UserDto userDto = userService.getUser(user);
                 LocalDate birthday = userDto.getBirthdayDate();
 
+                log.info("birthday ->>> {}", birthday.toString());
+                log.info("LocalDate.now().plusMonths ->>> {}", LocalDate.now().plusMonths(1));
+                log.info("LocalDate.now().minusDays ->>> {}", LocalDate.now().minusDays(1));
+
                 if (birthday.isBefore(LocalDate.now().plusMonths(1)) &&
                         birthday.isAfter(LocalDate.now().minusDays(1))) {
                     recipients.add(userDto);
