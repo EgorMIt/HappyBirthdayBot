@@ -217,11 +217,7 @@ public class CommandController {
             getReceivers(message, recipients, users);
         }
         Set<Long> friends = userService.getUser(message.getFrom().getId()).getFriends();
-        log.info("FRIENDS ->>> {}", friends);
-
         getReceivers(message, recipients, friends);
-
-        log.info("recipients ->>> {}", recipients);
 
         for (UserDto recipient : recipients) {
             postman.sendNotification(message.getFrom().getId(), recipient);
@@ -245,11 +241,7 @@ public class CommandController {
         for (Long user : users) {
             if (!Objects.equals(user, message.getFrom().getId())) {
                 UserDto userDto = userService.getUser(user);
-                LocalDate birthday = userDto.getBirthdayDate();
-
-                log.info("birthday ->>> {}", birthday.toString());
-                log.info("LocalDate.now().plusMonths ->>> {}", LocalDate.now().plusMonths(1));
-                log.info("LocalDate.now().minusDays ->>> {}", LocalDate.now().minusDays(1));
+                LocalDate birthday = userDto.getBirthdayDate().withYear(LocalDate.now().getYear());
 
                 if (birthday.isBefore(LocalDate.now().plusMonths(1)) &&
                         birthday.isAfter(LocalDate.now().minusDays(1))) {
