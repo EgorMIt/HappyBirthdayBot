@@ -3,11 +3,11 @@
 export JAVA_HOME=/usr/lib/jvm/java-1.17.0-openjdk-amd64
 
 # shellcheck disable=SC2046
-sudo docker stop $(docker ps -aq)
+sudo docker stop $(sudo docker ps -aq)
 # shellcheck disable=SC2046
-sudo docker rm $(docker ps -aq)
+sudo docker rm $(sudo docker ps -aq)
 
-mvn -f HappyBirthdayBot/pom.xml clean install -U
+mvn -f pom.xml clean install -U
 
 sudo docker build -t my_bot .
 
