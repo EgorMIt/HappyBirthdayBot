@@ -1,11 +1,13 @@
 #!/bin/bash
+export JAVA_HOME=/usr/lib/jvm/java-1.17.0-openjdk-amd64
 
 # shellcheck disable=SC2046
-docker stop $(docker ps -aq)
-docker rm $(docker ps -aq)
+sudo docker stop $(docker ps -aq)
+# shellcheck disable=SC2046
+sudo docker rm $(docker ps -aq)
 
 mvn clean install
 
-docker build -t my_bot .
+sudo docker build -t my_bot .
 
-docker run -d --restart=always --name=my_bot --network=host my_bot
+sudo docker run -d --restart=always --name=my_bot --network=host my_bot
