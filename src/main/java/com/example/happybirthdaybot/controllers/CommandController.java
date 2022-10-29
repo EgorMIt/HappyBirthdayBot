@@ -217,7 +217,11 @@ public class CommandController {
             getReceivers(message, recipients, users);
         }
         Set<Long> friends = userService.getUser(message.getFrom().getId()).getFriends();
+        log.info("FRIENDS ->>> {}", friends);
+
         getReceivers(message, recipients, friends);
+
+        log.info("recipients ->>> {}", recipients);
 
         for (UserDto recipient : recipients) {
             postman.sendNotification(message.getFrom().getId(), recipient);
