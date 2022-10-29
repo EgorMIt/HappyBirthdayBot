@@ -65,11 +65,11 @@ public class NotificationPostman {
     public void sendNotificationsByLevel(NotificationLevel notificationLevel) throws ApplicationException {
         LocalDate now = LocalDate.now();
         List<UserDto> users = userService.findUsersByBirthday(now.plusDays(notificationLevel.getNumberOfDays()));
-        Set<Long> receivers = new HashSet<>();
         for (UserDto user : users) {
+            Set<Long> receivers = new HashSet<>();
+
             //Поиск по групповым чатам
             Set<Long> userChats = user.getUserChats();
-
             for (Long chat : userChats) {
                 Set<Long> chatUsers = chatService.getChat(chat).getUsers();
 
@@ -78,7 +78,6 @@ public class NotificationPostman {
                         NotificationLevel currentLevel = userService.getUser(chatUser).getNotificationLevel();
                         if (currentLevel == notificationLevel && currentLevel != NotificationLevel.NEVER) {
                             receivers.add(chatUser);
-                            sendNotification(chatUser, user);
                         }
                     }
                 }
@@ -86,15 +85,17 @@ public class NotificationPostman {
 
             //Поиск по спискам друзей
             List<UserDto> userFriends = userService.findUsersFriendWith(user.getUserId());
-
             for (UserDto friend : userFriends) {
                 if (!Objects.equals(friend.getUserId(), user.getUserId())) {
                     NotificationLevel currentLevel = userService.getUser(friend.getUserId()).getNotificationLevel();
-                    if (currentLevel == notificationLevel && currentLevel != NotificationLevel.NEVER && !receivers.contains(friend.getUserId())) {
+                    if (currentLevel == notificationLevel && currentLevel != NotificationLevel.NEVER) {
                         receivers.add(friend.getUserId());
-                        sendNotification(friend.getUserId(), user);
                     }
                 }
+            }
+
+            for (Long receiver : receivers) {
+                sendNotification(receiver, user);
             }
         }
     }
