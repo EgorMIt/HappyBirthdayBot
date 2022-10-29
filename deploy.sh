@@ -20,4 +20,4 @@ echo -e "------------------ RUNNING DOCKER CONTAINER ------------------\n\n"
 sudo docker run -d --restart=always --name=my_bot --network=host my_bot
 
 echo -e "---------------- RUNNING DOCKER LOGS FOLLOWING ---------------\n\n"
-docker logs -f my_bot
+sudo docker logs -f my_bot
