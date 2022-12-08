@@ -1,34 +1,48 @@
+version: "2.1"
 services:
-  app:
-    image: 'happy-birthday-bot:latest'
-    build:
-      context: .
-    container_name: app
+  bot:
+    image: egormit/happy-birthday-bot
+    container_name: bot
     depends_on:
       - db
       - rabbitmq
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - DATABASE_HOST=bot_db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=admin
+      - DATABASE_PASSWORD=admin
+      - RABBIT_HOST=rabbitmq
+    networks:
+      - bot-network
+    ports:
+      - "8081:8081"
+    restart: always
 
   db:
     image: postgres
-    container_name: db
+    container_name: bot_db
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=HappyBirthdayBot
+      - POSTGRES_DB=bot
+    command: postgres -p 5432
+    networks:
+      - bot-network
+    ports:
+      - "5432:5432"
+    restart: always
 
   rabbitmq:
-    image: rabbitmq:3-management
-    hostname: my-rabbit
-    volumes:
-      - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
-      - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
-      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    image: rabbitmq:3.10.7-management
+    container_name: rabbitmq
     ports:
-      - 5672:5672
-      - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - bot-network
+    restart: always
+
+networks:
+  bot-network:
+    name: bot-network
+    external: true

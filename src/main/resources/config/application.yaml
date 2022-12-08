@@ -5,9 +5,9 @@ spring:
     name: HappyBirthdayBot
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: admin
-    password: admin
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/bot
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:admin}
   jpa:
     database: POSTGRESQL
   flyway:
@@ -19,7 +19,7 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   rabbitmq:
-    host: localhost
+    host: ${RABBIT_HOST:localhost}
     virtualhost: /
     port: 15672
     username: guest
