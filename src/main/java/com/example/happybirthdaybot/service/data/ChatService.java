@@ -1,4 +1,4 @@
-package com.example.happybirthdaybot.service;
+package com.example.happybirthdaybot.service.data;
 
 import com.example.happybirthdaybot.dto.ChatDto;
 import com.example.happybirthdaybot.error.ApplicationException;

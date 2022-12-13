@@ -1,4 +1,4 @@
-package com.example.happybirthdaybot.service.impl;
+package com.example.happybirthdaybot.service.data.impl;
 
 import com.example.happybirthdaybot.domain.entity.ChatEntity;
 import com.example.happybirthdaybot.domain.entity.FriendEntity;
@@ -13,7 +13,7 @@ import com.example.happybirthdaybot.domain.repository.WishRepository;
 import com.example.happybirthdaybot.dto.UserDto;
 import com.example.happybirthdaybot.error.ApplicationException;
 import com.example.happybirthdaybot.error.ErrorDescriptions;
-import com.example.happybirthdaybot.service.UserService;
+import com.example.happybirthdaybot.service.data.UserService;
 import com.example.happybirthdaybot.utils.ModelMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
