@@ -4,9 +4,9 @@ import com.example.happybirthdaybot.common.Answers;
 import com.example.happybirthdaybot.common.Command;
 import com.example.happybirthdaybot.config.BotConfig;
 import com.example.happybirthdaybot.controllers.ActionController;
-import com.example.happybirthdaybot.controllers.CommandController;
 import com.example.happybirthdaybot.dto.NotificationDto;
 import com.example.happybirthdaybot.error.ApplicationException;
+import com.example.happybirthdaybot.service.commands.CommandService;
 import com.example.happybirthdaybot.utils.MessageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -39,11 +39,6 @@ public class Bot extends TelegramLongPollingBot {
     private final MessageParser messageParser;
 
     /**
-     * {@link CommandController}.
-     */
-    private final CommandController commandController;
-
-    /**
      * {@link ActionController}.
      */
     private final ActionController actionController;
@@ -52,6 +47,11 @@ public class Bot extends TelegramLongPollingBot {
      * {@link BotConfig}.
      */
     private final BotConfig botConfig;
+
+    /**
+     * {@link CommandService}
+     */
+    private final CommandService commandService;
 
     /**
      * Основной обработчик событий.
@@ -67,26 +67,8 @@ public class Bot extends TelegramLongPollingBot {
                 if (text.charAt(0) == '/') {
                     Message wait = sendDefaultMessage(Answers.WAITING, update.getMessage());
                     Command command = messageParser.checkForCommand(text);
-                    switch (command) {
-                        case START ->
-                                sendDefaultMessageAndDeletePrevious(commandController.startCommand(update.getMessage()), wait);
-                        case CLEAN ->
-                                sendDefaultMessageAndDeletePrevious(commandController.cleanCommand(update.getMessage()), wait);
-                        case INFO ->
-                                sendDefaultMessageAndDeletePrevious(commandController.infoCommand(update.getMessage()), wait);
-                        case SOON ->
-                                sendDefaultMessageAndDeletePrevious(commandController.soonCommand(update.getMessage()), wait);
-                        case NOTIFICATIONS ->
-                                sendDefaultMessageAndDeletePrevious(commandController.notificationsCommand(update.getMessage()), wait);
-                        case WISHLIST ->
-                                sendDefaultMessageAndDeletePrevious(commandController.wishlistCommand(update.getMessage()), wait);
-                        case EMPTY ->
-                                sendDefaultMessageAndDeletePrevious(commandController.emptyCommand(update.getMessage()), wait);
-                        case FRIEND ->
-                                sendDefaultMessageAndDeletePrevious(commandController.friendCommand(update.getMessage()), wait);
-                        case ADMIN ->
-                                sendDefaultMessageAndDeletePrevious(commandController.adminCommand(update.getMessage()), wait);
-                    }
+
+                    sendDefaultMessageAndDeletePrevious(commandService.invokeCommand(command, update.getMessage()), wait);
                 } else {
                     if (messageParser.hasDate(text)) {
                         sendDefaultMessage(actionController.updateDate(update.getMessage()));

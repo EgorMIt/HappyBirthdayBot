@@ -34,3 +34,4 @@ build/
 .vscode/
 /database_data/
 /rabbitmq/
+/src/test/resources/test_bot.mv.db

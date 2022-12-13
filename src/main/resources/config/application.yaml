@@ -15,13 +15,11 @@ spring:
   sql:
     init:
       platform: postgres
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+
   rabbitmq:
     host: ${RABBIT_HOST:localhost}
     virtualhost: /
-    port: 15672
+    port: ${RABBIT_PORT:15672}
     username: guest
     password: guest
     exchange: rabbitmq.exchange

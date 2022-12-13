@@ -18,9 +18,9 @@ CREATE TABLE user_table
     user_tag           VARCHAR(255),
     user_name          VARCHAR(255),
     user_surname       VARCHAR(255),
-    birthday           date,
-    day                INTEGER,
-    month              INTEGER,
+    birthday           DATE,
+    birthday_day                INTEGER,
+    birthday_month              INTEGER,
     is_registered      BOOLEAN NOT NULL,
     is_updating        BOOLEAN NOT NULL,
     notification_level BIGINT  NOT NULL
@@ -58,5 +58,5 @@ CREATE TABLE wishlist_table
     id      BIGINT                                                                NOT NULL
         CONSTRAINT pk_wishlist_table PRIMARY KEY,
     user_id BIGINT REFERENCES user_table (id) ON DELETE CASCADE ON UPDATE CASCADE NOT NULL,
-    wish    TEXT
+    wish    VARCHAR(255)
 );

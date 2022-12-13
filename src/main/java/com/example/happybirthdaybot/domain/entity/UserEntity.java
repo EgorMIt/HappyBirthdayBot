@@ -70,13 +70,13 @@ public class UserEntity {
     /**
      * День.
      */
-    @Column(name = "day")
+    @Column(name = "birthday_day")
     private Integer day;
 
     /**
      * Месяц.
      */
-    @Column(name = "month")
+    @Column(name = "birthday_month")
     private Integer month;
 
     /**

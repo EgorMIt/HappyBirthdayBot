@@ -12,6 +12,7 @@ services:
       - DATABASE_USERNAME=admin
       - DATABASE_PASSWORD=admin
       - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=15672
     networks:
       - bot-network
     ports:
