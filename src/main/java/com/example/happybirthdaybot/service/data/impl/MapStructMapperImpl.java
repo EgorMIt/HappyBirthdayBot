@@ -1,4 +1,4 @@
-package com.example.happybirthdaybot.utils;
+package com.example.happybirthdaybot.service.data.impl;
 
 
 import com.example.happybirthdaybot.domain.entity.ChatEntity;
@@ -6,27 +6,21 @@ import com.example.happybirthdaybot.domain.entity.UserEntity;
 import com.example.happybirthdaybot.domain.entity.WishEntity;
 import com.example.happybirthdaybot.dto.ChatDto;
 import com.example.happybirthdaybot.dto.UserDto;
-import lombok.RequiredArgsConstructor;
+import com.example.happybirthdaybot.service.data.MapStructMapper;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.stream.Collectors;
 
 /**
- * Маппер моделей.
+ * Реализация маппера моделей.
  *
  * @author Egor Mitrofanov.
  */
 @Component
-@RequiredArgsConstructor
-public class ModelMapper {
+public class MapStructMapperImpl implements MapStructMapper {
 
-    /**
-     * Маппер сущности {@link User} в модель {@link UserDto}.
-     *
-     * @param user сущность.
-     * @return модель {@link UserDto}.
-     */
+    @Override
     public UserDto mapToUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setUserId(user.getId());
@@ -36,12 +30,7 @@ public class ModelMapper {
         return userDto;
     }
 
-    /**
-     * Маппер сущности {@link UserEntity} в модель {@link UserDto}.
-     *
-     * @param userEntity сущность.
-     * @return модель {@link UserDto}.
-     */
+    @Override
     public UserDto mapToUserDto(UserEntity userEntity) {
         UserDto userDto = new UserDto();
         userDto.setUserId(userEntity.getUserId());
@@ -67,12 +56,7 @@ public class ModelMapper {
         return userDto;
     }
 
-    /**
-     * Маппер сущности {@link ChatEntity} в модель {@link ChatDto}.
-     *
-     * @param chatEntity сущность.
-     * @return модель {@link ChatDto}.
-     */
+    @Override
     public ChatDto mapToChatDto(ChatEntity chatEntity) {
         ChatDto chatDto = new ChatDto();
         chatDto.setChatId(chatEntity.getChatId());
@@ -83,6 +67,5 @@ public class ModelMapper {
                 .collect(Collectors.toSet()));
         return chatDto;
     }
-
 
 }

@@ -101,7 +101,7 @@ public class NotificationPostman {
     }
 
     /**
-     * Отправка нпоминания.
+     * Отправка напоминания.
      */
     public void sendNotification(Long receiver, UserDto user) {
         log.info("send message to: ({})", receiver);

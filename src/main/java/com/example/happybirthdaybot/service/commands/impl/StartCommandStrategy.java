@@ -7,8 +7,8 @@ import com.example.happybirthdaybot.dto.UserDto;
 import com.example.happybirthdaybot.error.ApplicationException;
 import com.example.happybirthdaybot.service.commands.CommandStrategy;
 import com.example.happybirthdaybot.service.data.ChatService;
+import com.example.happybirthdaybot.service.data.MapStructMapper;
 import com.example.happybirthdaybot.service.data.UserService;
-import com.example.happybirthdaybot.utils.ModelMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,9 +34,9 @@ public class StartCommandStrategy implements CommandStrategy {
     private final ChatService chatService;
 
     /**
-     * {@link ModelMapper}.
+     * {@link MapStructMapper}.
      */
-    private final ModelMapper modelMapper;
+    private final MapStructMapper mapper;
 
     @Override
     public SendMessage invokeCommand(Message message) throws ApplicationException {
@@ -44,7 +44,7 @@ public class StartCommandStrategy implements CommandStrategy {
         String answerText;
         if (message.getChat().getType().equals("private")) {
             if (!userService.checkUser(message.getFrom().getId())) {
-                UserDto userDto = modelMapper.mapToUserDto(message.getFrom());
+                UserDto userDto = mapper.mapToUserDto(message.getFrom());
                 userService.createUser(userDto);
                 answerText = Answers.START;
             } else if (userService.getUser(message.getFrom().getId()).getIsRegistered()) {

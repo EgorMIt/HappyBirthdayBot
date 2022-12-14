@@ -62,9 +62,9 @@ public class Bot extends TelegramLongPollingBot {
         try {
             //Обычные сообщения и команды
             if (update.hasMessage() && update.getMessage().hasText()) {
-
                 String text = update.getMessage().getText();
-                if (text.charAt(0) == '/') {
+
+                if (messageParser.hasCommand(text)) {
                     Message wait = sendDefaultMessage(Answers.WAITING, update.getMessage());
                     Command command = messageParser.checkForCommand(text);
 
@@ -107,6 +107,7 @@ public class Bot extends TelegramLongPollingBot {
             }
         } catch (ApplicationException e) {
             sendDefaultMessage(e.getError().getResponseText(), update.getMessage());
+            log.info("catch exception: ({})", e.getError().getMessage());
         }
     }
 

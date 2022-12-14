@@ -13,8 +13,8 @@ import com.example.happybirthdaybot.domain.repository.WishRepository;
 import com.example.happybirthdaybot.dto.UserDto;
 import com.example.happybirthdaybot.error.ApplicationException;
 import com.example.happybirthdaybot.error.ErrorDescriptions;
+import com.example.happybirthdaybot.service.data.MapStructMapper;
 import com.example.happybirthdaybot.service.data.UserService;
-import com.example.happybirthdaybot.utils.ModelMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,9 +58,9 @@ public class UserServiceImpl implements UserService {
     private final FriendRepository friendRepository;
 
     /**
-     * {@link ModelMapper}.
+     * {@link MapStructMapper}.
      */
-    private final ModelMapper modelMapper;
+    private final MapStructMapper mapper;
 
     /**
      * Добавление пользователя в бд.
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
      */
     public UserDto getUser(Long userId) throws ApplicationException {
         UserEntity userEntity = userRepository.findUserEntityByUserId(userId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
-        return modelMapper.mapToUserDto(userEntity);
+        return mapper.mapToUserDto(userEntity);
     }
 
     /**
@@ -178,7 +178,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> findUsersByBirthday(LocalDate birthday) {
         return userRepository.findUserEntitiesByDayAndMonth(birthday.getDayOfMonth(), birthday.getMonthValue())
                 .stream()
-                .map(modelMapper::mapToUserDto)
+                .map(mapper::mapToUserDto)
                 .collect(Collectors.toList());
     }
 
@@ -192,7 +192,7 @@ public class UserServiceImpl implements UserService {
         UserEntity friend = userRepository.findUserEntityByUserId(friendId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
         return friendRepository.findFriendEntitiesByFriend(friend)
                 .stream()
-                .map(item -> modelMapper.mapToUserDto(item.getUser()))
+                .map(item -> mapper.mapToUserDto(item.getUser()))
                 .collect(Collectors.toList());
     }
 

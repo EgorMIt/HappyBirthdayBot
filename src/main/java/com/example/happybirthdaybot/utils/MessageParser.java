@@ -8,6 +8,7 @@ import com.example.happybirthdaybot.error.ErrorDescriptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Парсинг сообщений от пользователей.
@@ -83,6 +84,15 @@ public class MessageParser {
      */
     public Boolean hasUserTag(String text) {
         return text.charAt(0) == '@';
+    }
+
+    /**
+     * Проверка на ввод команды
+     *
+     * @param text сообщение
+     */
+    public Boolean hasCommand(String text) {
+        return !ObjectUtils.isEmpty(text) && text.charAt(0) == '/';
     }
 
 }
