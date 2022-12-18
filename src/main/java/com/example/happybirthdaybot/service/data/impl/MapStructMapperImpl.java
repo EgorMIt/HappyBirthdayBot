@@ -57,6 +57,16 @@ public class MapStructMapperImpl implements MapStructMapper {
     }
 
     @Override
+    public UserEntity mapToUserEntity(UserDto userDto) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUserId(userDto.getUserId());
+        userEntity.setUserTag(userDto.getUserTag());
+        userEntity.setUserName(userDto.getUserName());
+        userEntity.setUserSurname(userDto.getUserSurname());
+        return userEntity;
+    }
+
+    @Override
     public ChatDto mapToChatDto(ChatEntity chatEntity) {
         ChatDto chatDto = new ChatDto();
         chatDto.setChatId(chatEntity.getChatId());

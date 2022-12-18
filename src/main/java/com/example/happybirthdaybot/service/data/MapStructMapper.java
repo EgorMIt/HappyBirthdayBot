@@ -32,6 +32,14 @@ public interface MapStructMapper {
     UserDto mapToUserDto(UserEntity userEntity);
 
     /**
+     * Маппер модели {@link UserDto} в сущность {@link UserEntity}.
+     *
+     * @param userDto модель.
+     * @return сущность {@link UserEntity}.
+     */
+    UserEntity mapToUserEntity(UserDto userDto);
+
+    /**
      * Маппер сущности {@link ChatEntity} в модель {@link ChatDto}.
      *
      * @param chatEntity сущность.

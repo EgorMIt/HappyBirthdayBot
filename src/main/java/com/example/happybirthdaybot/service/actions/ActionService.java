@@ -1,5 +1,6 @@
-package com.example.happybirthdaybot.controllers;
+package com.example.happybirthdaybot.service.actions;
 
+import com.example.happybirthdaybot.bot.MessageExecutor;
 import com.example.happybirthdaybot.common.Answers;
 import com.example.happybirthdaybot.domain.entity.NotificationLevel;
 import com.example.happybirthdaybot.dto.UserDto;
@@ -29,7 +30,7 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ActionController {
+public class ActionService {
 
     /**
      * {@link UserService}.
@@ -42,12 +43,16 @@ public class ActionController {
     private final ChatService chatService;
 
     /**
+     * {@link MessageExecutor}
+     */
+    private final MessageExecutor messageExecutor;
+
+    /**
      * Обработчик команды добавления даты.
      *
      * @param message входящее сообщение.
-     * @return {@link SendMessage} ответное сообщение.
      */
-    public SendMessage updateDate(Message message) throws ApplicationException {
+    public void updateDate(Message message) throws ApplicationException {
         log.info("invoke updateDate: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));
@@ -61,12 +66,11 @@ public class ActionController {
             userDto.setIsRegistered(true);
             userService.updateUser(userDto);
 
-            return SendMessage.builder()
+            messageExecutor.sendDefaultMessage(SendMessage
+                    .builder()
                     .chatId(message.getChatId())
                     .text(Answers.DATE_FILLED)
-                    .build();
-        } else {
-            return null;
+                    .build());
         }
     }
 
@@ -74,9 +78,8 @@ public class ActionController {
      * Обработчик кода присоединения к чату.
      *
      * @param message входящее сообщение.
-     * @return {@link SendMessage} ответное сообщение.
      */
-    public SendMessage joinChatByCode(Message message) throws ApplicationException {
+    public void joinChatByCode(Message message) throws ApplicationException {
         log.info("invoke joinChatByCode: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));
@@ -86,10 +89,10 @@ public class ActionController {
 
         userService.addUserToChat(message.getFrom().getId(), Integer.valueOf(message.getText().trim()));
 
-        return SendMessage.builder()
+        messageExecutor.sendDefaultMessage(SendMessage.builder()
                 .chatId(message.getChatId())
                 .text(answerText)
-                .build();
+                .build());
     }
 
     /**
@@ -97,9 +100,8 @@ public class ActionController {
      *
      * @param update       новый update.
      * @param callBackData данные для обновления.
-     * @return {@link EditMessageText} ответное сообщение.
      */
-    public EditMessageText setNotificationLevel(Update update, String callBackData) throws ApplicationException {
+    public void setNotificationLevel(Update update, String callBackData) throws ApplicationException {
         log.info("invoke setNotificationLevel: ({}, {})", update.getCallbackQuery().getFrom().getId(), callBackData);
 
         Long userId = update.getCallbackQuery().getFrom().getId();
@@ -117,7 +119,8 @@ public class ActionController {
         message.setChatId(userId);
         message.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
         message.setText(answerText);
-        return message;
+
+        messageExecutor.editMessage(message);
     }
 
     /**
@@ -150,10 +153,11 @@ public class ActionController {
      * Обработчик добавления wishlist-а.
      *
      * @param message входящее сообщение.
-     * @return {@link SendMessage} ответное сообщение.
      */
-    public SendMessage updateWishlist(Message message) throws ApplicationException {
+    public void updateWishlist(Message message) throws ApplicationException {
         log.info("invoke updateWishlist: ({}, {})", message.getChatId(), message.getFrom().getUserName());
+
+        Message wait = messageExecutor.sendDefaultMessage(Answers.WAITING, message);
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));
 
@@ -166,20 +170,21 @@ public class ActionController {
 
             userDto.setIsUpdating(false);
             userService.updateUser(userDto);
-            return SendMessage.builder()
-                    .chatId(message.getChatId())
-                    .text(Answers.WISHLIST_ADDED)
-                    .build();
-        } else return null;
+
+            messageExecutor.sendDefaultMessageAndDeletePrevious(
+                    SendMessage.builder()
+                            .chatId(message.getChatId())
+                            .text(Answers.WISHLIST_ADDED)
+                            .build(), wait);
+        }
     }
 
     /**
      * Обработчик добавления пользователя в друзья.
      *
      * @param message входящее сообщение.
-     * @return {@link SendMessage} ответное сообщение.
      */
-    public SendMessage friendAdded(Message message) throws ApplicationException {
+    public void friendAdded(Message message) throws ApplicationException {
         log.info("invoke friendAdded: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));
@@ -190,10 +195,11 @@ public class ActionController {
             userService.addFriend(message.getFrom().getId(), userTag);
             answerText = Answers.FRIEND_ADDED;
         } else answerText = Answers.FRIEND_NOT_FOUND;
-        return SendMessage.builder()
+
+        messageExecutor.sendDefaultMessage(SendMessage.builder()
                 .chatId(message.getChatId())
                 .text(answerText)
-                .build();
+                .build());
     }
 
 }
