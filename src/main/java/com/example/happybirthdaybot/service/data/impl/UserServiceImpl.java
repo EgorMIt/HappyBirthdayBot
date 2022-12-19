@@ -13,8 +13,8 @@ import com.example.happybirthdaybot.domain.repository.WishRepository;
 import com.example.happybirthdaybot.dto.UserDto;
 import com.example.happybirthdaybot.error.ApplicationException;
 import com.example.happybirthdaybot.error.ErrorDescriptions;
+import com.example.happybirthdaybot.service.data.MapStructMapper;
 import com.example.happybirthdaybot.service.data.UserService;
-import com.example.happybirthdaybot.utils.ModelMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,9 +58,9 @@ public class UserServiceImpl implements UserService {
     private final FriendRepository friendRepository;
 
     /**
-     * {@link ModelMapper}.
+     * {@link MapStructMapper}.
      */
-    private final ModelMapper modelMapper;
+    private final MapStructMapper mapper;
 
     /**
      * Добавление пользователя в бд.
@@ -69,11 +69,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void createUser(UserDto userDto) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(userDto.getUserId());
-        userEntity.setUserTag(userDto.getUserTag());
-        userEntity.setUserName(userDto.getUserName());
-        userEntity.setUserSurname(userDto.getUserSurname());
+        UserEntity userEntity = mapper.mapToUserEntity(userDto);
         userEntity.setIsRegistered(false);
         userEntity.setIsUpdating(false);
         userEntity.setNotificationLevel(NotificationLevel.DAY);
@@ -99,7 +95,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updateUser(UserDto userDto) throws ApplicationException {
-        UserEntity userEntity = userRepository.findUserEntityByUserId(userDto.getUserId()).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity userEntity = userRepository.findUserEntityByUserId(userDto.getUserId())
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
         userEntity.setUserId(userDto.getUserId());
         userEntity.setUserTag(userDto.getUserTag());
         userEntity.setUserName(userDto.getUserName());
@@ -141,7 +138,7 @@ public class UserServiceImpl implements UserService {
      */
     public UserDto getUser(Long userId) throws ApplicationException {
         UserEntity userEntity = userRepository.findUserEntityByUserId(userId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
-        return modelMapper.mapToUserDto(userEntity);
+        return mapper.mapToUserDto(userEntity);
     }
 
     /**
@@ -153,8 +150,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void addUserToChat(Long userId, Integer chatCode) throws ApplicationException {
-        UserEntity userEntity = userRepository.findUserEntityByUserId(userId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
-        ChatEntity chatEntity = chatRepository.findChatEntityByChatCode(chatCode).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity userEntity = userRepository.findUserEntityByUserId(userId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        ChatEntity chatEntity = chatRepository
+                .findChatEntityByChatCode(chatCode).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
 
         Set<UserChatEntity> users = chatEntity.getUserChat();
 
@@ -178,7 +177,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> findUsersByBirthday(LocalDate birthday) {
         return userRepository.findUserEntitiesByDayAndMonth(birthday.getDayOfMonth(), birthday.getMonthValue())
                 .stream()
-                .map(modelMapper::mapToUserDto)
+                .map(mapper::mapToUserDto)
                 .collect(Collectors.toList());
     }
 
@@ -189,10 +188,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<UserDto> findUsersFriendWith(Long friendId) throws ApplicationException {
-        UserEntity friend = userRepository.findUserEntityByUserId(friendId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity friend = userRepository.findUserEntityByUserId(friendId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
         return friendRepository.findFriendEntitiesByFriend(friend)
                 .stream()
-                .map(item -> modelMapper.mapToUserDto(item.getUser()))
+                .map(item -> mapper.mapToUserDto(item.getUser()))
                 .collect(Collectors.toList());
     }
 
@@ -205,7 +205,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void addWishlistToUser(Long userId, Set<String> wishlist) throws ApplicationException {
-        UserEntity userEntity = userRepository.findUserEntityByUserId(userId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity userEntity = userRepository.findUserEntityByUserId(userId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
 
         List<WishEntity> wishEntities = new ArrayList<>();
         for (String wish : wishlist) {
@@ -230,7 +231,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void clearWishlist(Long userId) throws ApplicationException {
-        UserEntity userEntity = userRepository.findUserEntityByUserId(userId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity userEntity = userRepository.findUserEntityByUserId(userId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
 
         userEntity.setWishlist(Collections.emptySet());
         List<WishEntity> wishEntities = wishRepository.findWishEntitiesByUser(userEntity);
@@ -247,8 +249,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void addFriend(Long userId, String friendTag) throws ApplicationException {
-        UserEntity user = userRepository.findUserEntityByUserId(userId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
-        UserEntity friend = userRepository.findUserEntityByUserTag(friendTag).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity user = userRepository.findUserEntityByUserId(userId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        UserEntity friend = userRepository.findUserEntityByUserTag(friendTag)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
 
         if (user.getFriends().stream().noneMatch(item -> item.getFriend().getUserId().equals(friend.getUserId()))
                 && !user.equals(friend)) {

@@ -1,26 +1,22 @@
 package com.example.happybirthdaybot.bot;
 
-import com.example.happybirthdaybot.common.Answers;
 import com.example.happybirthdaybot.common.Command;
 import com.example.happybirthdaybot.config.BotConfig;
-import com.example.happybirthdaybot.controllers.ActionController;
-import com.example.happybirthdaybot.dto.NotificationDto;
 import com.example.happybirthdaybot.error.ApplicationException;
+import com.example.happybirthdaybot.service.actions.ActionService;
 import com.example.happybirthdaybot.service.commands.CommandService;
 import com.example.happybirthdaybot.utils.MessageParser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.io.Serializable;
 
 /**
  * Реализация бота.
@@ -29,7 +25,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  */
 @Slf4j
 @Component
-@RabbitListener(queues = "rabbitmq.queue", id = "listener")
 @RequiredArgsConstructor
 public class Bot extends TelegramLongPollingBot {
 
@@ -39,14 +34,9 @@ public class Bot extends TelegramLongPollingBot {
     private final MessageParser messageParser;
 
     /**
-     * {@link ActionController}.
+     * {@link ActionService}.
      */
-    private final ActionController actionController;
-
-    /**
-     * {@link BotConfig}.
-     */
-    private final BotConfig botConfig;
+    private final ActionService actionService;
 
     /**
      * {@link CommandService}
@@ -54,31 +44,34 @@ public class Bot extends TelegramLongPollingBot {
     private final CommandService commandService;
 
     /**
+     * {@link BotConfig}.
+     */
+    private final BotConfig botConfig;
+
+    /**
      * Основной обработчик событий.
      */
     @Override
+    @SneakyThrows
     public void onUpdateReceived(Update update) {
         log.info("new update received: ({})", update.toString());
         try {
             //Обычные сообщения и команды
             if (update.hasMessage() && update.getMessage().hasText()) {
-
                 String text = update.getMessage().getText();
-                if (text.charAt(0) == '/') {
-                    Message wait = sendDefaultMessage(Answers.WAITING, update.getMessage());
-                    Command command = messageParser.checkForCommand(text);
 
-                    sendDefaultMessageAndDeletePrevious(commandService.invokeCommand(command, update.getMessage()), wait);
+                if (messageParser.hasCommand(text)) {
+                    Command command = messageParser.checkForCommand(text);
+                    commandService.invokeCommand(command, update.getMessage());
                 } else {
                     if (messageParser.hasDate(text)) {
-                        sendDefaultMessage(actionController.updateDate(update.getMessage()));
+                        actionService.updateDate(update.getMessage());
                     } else if (messageParser.hasCode(text)) {
-                        sendDefaultMessage(actionController.joinChatByCode(update.getMessage()));
+                        actionService.joinChatByCode(update.getMessage());
                     } else if (messageParser.hasUserTag(text)) {
-                        sendDefaultMessage(actionController.friendAdded(update.getMessage()));
+                        actionService.friendAdded(update.getMessage());
                     } else {
-                        Message wait = sendDefaultMessage(Answers.WAITING, update.getMessage());
-                        sendDefaultMessageAndDeletePrevious(actionController.updateWishlist(update.getMessage()), wait);
+                        actionService.updateWishlist(update.getMessage());
                     }
                 }
             }
@@ -87,7 +80,7 @@ public class Bot extends TelegramLongPollingBot {
                 if (update.getMessage().getLeftChatMember() != null &&
                         update.getMessage().getLeftChatMember().getIsBot() &&
                         update.getMessage().getLeftChatMember().getFirstName().equals(getBotUsername())) {
-                    actionController.botLeftChat(update);
+                    actionService.botLeftChat(update);
                 }
             }
             //Действия, не имеющие сообщения (Блок бота пользователем)
@@ -95,102 +88,24 @@ public class Bot extends TelegramLongPollingBot {
                     update.getMyChatMember().getOldChatMember() != null &&
                     update.getMyChatMember().getOldChatMember().getUser().getIsBot() &&
                     update.getMyChatMember().getOldChatMember().getUser().getFirstName().equals(getBotUsername())) {
-                actionController.userBlockedBot(update);
+                actionService.userBlockedBot(update);
             }
             //Действия с callBack (Кнопки)
             else if (update.hasCallbackQuery()) {
                 String callBackData = update.getCallbackQuery().getData();
 
                 if (messageParser.checkForNotification(callBackData)) {
-                    editMessage(actionController.setNotificationLevel(update, callBackData));
+                    actionService.setNotificationLevel(update, callBackData);
                 }
             }
         } catch (ApplicationException e) {
-            sendDefaultMessage(e.getError().getResponseText(), update.getMessage());
-        }
-    }
+            log.info("catch exception: ({})", e.getError().getMessage());
 
-    /**
-     * Отправка сообщения.
-     */
-    @SneakyThrows
-    public Message sendDefaultMessage(String text, Message message) {
-        if (!ObjectUtils.isEmpty(text)) {
-            return execute(SendMessage.builder()
-                    .chatId(message.getChatId())
-                    .text(text)
+            execute(SendMessage.builder()
+                    .chatId(update.getMessage().getChatId())
+                    .text(e.getError().getResponseText())
                     .build());
         }
-        return null;
-    }
-
-    /**
-     * Отправка сообщения.
-     */
-    @SneakyThrows
-    public void sendDefaultMessage(SendMessage sendMessage) {
-        if (!ObjectUtils.isEmpty(sendMessage) && !ObjectUtils.isEmpty(sendMessage.getText())) {
-            execute(sendMessage);
-        }
-    }
-
-    /**
-     * Отправка сообщения с ожиданием.
-     */
-    @SneakyThrows
-    public void sendDefaultMessageAndDeletePrevious(SendMessage sendMessage, Message previous) {
-        DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setChatId(previous.getChatId());
-        deleteMessage.setMessageId(previous.getMessageId());
-        execute(deleteMessage);
-
-        if (!ObjectUtils.isEmpty(sendMessage) && !ObjectUtils.isEmpty(sendMessage.getText())) {
-            execute(sendMessage);
-        }
-    }
-
-    /**
-     * Изменение сообщения.
-     */
-    @SneakyThrows
-    public void editMessage(EditMessageText editMessageText) {
-        if (!ObjectUtils.isEmpty(editMessageText)) {
-            execute(editMessageText);
-        }
-    }
-
-    /**
-     * Обработчик сообщений.
-     */
-    @RabbitHandler
-    public void receiver(NotificationDto notificationDto) {
-        log.info("received message: ({})", notificationDto.toString());
-
-        StringBuilder answerText = new StringBuilder();
-        answerText.append(Answers.BIRTHDAY_NOTIFICATION_1);
-        if (!ObjectUtils.isEmpty(notificationDto.getUserTag())) {
-            answerText.append("@")
-                    .append(notificationDto.getUserTag());
-        } else {
-            answerText.append(Answers.BIRTHDAY_NOTIFICATION_1)
-                    .append(notificationDto.getUserName())
-                    .append(" ")
-                    .append(notificationDto.getUserSurname());
-        }
-        answerText.append(Answers.BIRTHDAY_NOTIFICATION_2)
-                .append(notificationDto.getBirthdayDate());
-
-        if (!notificationDto.getWishlist().isEmpty()) {
-            answerText.append("\n\nВот список идей для подарков:");
-            for (String wish : notificationDto.getWishlist()) {
-                answerText.append("\n - ")
-                        .append(wish);
-            }
-        }
-        sendDefaultMessage(SendMessage.builder()
-                .chatId(notificationDto.getUserId())
-                .text(answerText.toString())
-                .build());
     }
 
     @Override
@@ -201,6 +116,11 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public String getBotToken() {
         return botConfig.getBotToken();
+    }
+
+    @Override
+    public <T extends Serializable, Method extends BotApiMethod<T>> T execute(Method method) throws TelegramApiException {
+        return super.execute(method);
     }
 
 }

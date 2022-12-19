@@ -20,7 +20,7 @@ public enum ErrorDescriptions {
     JOIN_ERROR(Answers.JOINED_FAILED, "Invalid join data"),
     NO_INFO_ERROR(Answers.NO_INFO, "User not registered"),
     INVALID_COMMAND_IN_CHAT(Answers.INVALID_COMMAND_IN_CHAT, "Invalid chat command"),
-    HANDLER_NOT_FOUND(Answers.INTERNAL_SERVER_ERROR, "Handler not found");
+    HANDLER_NOT_FOUND(Answers.APPLICATION_ERROR, "Handler not found");
 
     /**
      * Сообщение пользователю.
@@ -82,4 +82,5 @@ public enum ErrorDescriptions {
     public ApplicationException exception() {
         return new ApplicationException(applicationError());
     }
+
 }

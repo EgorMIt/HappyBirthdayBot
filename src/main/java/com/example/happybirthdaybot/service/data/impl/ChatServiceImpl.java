@@ -7,7 +7,7 @@ import com.example.happybirthdaybot.dto.ChatDto;
 import com.example.happybirthdaybot.error.ApplicationException;
 import com.example.happybirthdaybot.error.ErrorDescriptions;
 import com.example.happybirthdaybot.service.data.ChatService;
-import com.example.happybirthdaybot.utils.ModelMapper;
+import com.example.happybirthdaybot.service.data.MapStructMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,9 +30,9 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
 
     /**
-     * {@link ModelMapper}.
+     * {@link MapStructMapper}.
      */
-    private final ModelMapper modelMapper;
+    private final MapStructMapper mapper;
 
     /**
      * {@link BotConfig}.
@@ -66,8 +66,9 @@ public class ChatServiceImpl implements ChatService {
      */
     @Override
     public ChatDto getChat(Long chatId) throws ApplicationException {
-        ChatEntity chatEntity = chatRepository.findChatEntityByChatId(chatId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
-        return modelMapper.mapToChatDto(chatEntity);
+        ChatEntity chatEntity = chatRepository.findChatEntityByChatId(chatId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        return mapper.mapToChatDto(chatEntity);
     }
 
     /**
@@ -112,7 +113,8 @@ public class ChatServiceImpl implements ChatService {
      */
     @Override
     public void deleteChat(Long chatId) throws ApplicationException {
-        ChatEntity chatEntity = chatRepository.findChatEntityByChatId(chatId).orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
+        ChatEntity chatEntity = chatRepository.findChatEntityByChatId(chatId)
+                .orElseThrow(ErrorDescriptions.APPLICATION_ERROR::exception);
         chatRepository.delete(chatEntity);
     }
 
