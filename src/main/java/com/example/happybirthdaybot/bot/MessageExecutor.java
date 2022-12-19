@@ -2,7 +2,6 @@ package com.example.happybirthdaybot.bot;
 
 import com.example.happybirthdaybot.common.Answers;
 import com.example.happybirthdaybot.dto.NotificationDto;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -13,6 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
  * Формирование сообщений.
@@ -36,8 +36,7 @@ public class MessageExecutor {
     /**
      * Отправка сообщения.
      */
-    @SneakyThrows
-    public Message sendDefaultMessage(String text, Message message) {
+    public Message sendDefaultMessage(String text, Message message) throws TelegramApiException {
         if (!ObjectUtils.isEmpty(text)) {
             return bot.execute(SendMessage.builder()
                     .chatId(message.getChatId())
@@ -50,8 +49,7 @@ public class MessageExecutor {
     /**
      * Отправка сообщения.
      */
-    @SneakyThrows
-    public void sendDefaultMessage(SendMessage sendMessage) {
+    public void sendDefaultMessage(SendMessage sendMessage) throws TelegramApiException {
         if (!ObjectUtils.isEmpty(sendMessage) && !ObjectUtils.isEmpty(sendMessage.getText())) {
             bot.execute(sendMessage);
         }
@@ -60,8 +58,7 @@ public class MessageExecutor {
     /**
      * Отправка сообщения с ожиданием.
      */
-    @SneakyThrows
-    public void sendDefaultMessageAndDeletePrevious(SendMessage sendMessage, Message previous) {
+    public void sendDefaultMessageAndDeletePrevious(SendMessage sendMessage, Message previous) throws TelegramApiException {
         DeleteMessage deleteMessage = new DeleteMessage();
         deleteMessage.setChatId(previous.getChatId());
         deleteMessage.setMessageId(previous.getMessageId());
@@ -75,8 +72,7 @@ public class MessageExecutor {
     /**
      * Изменение сообщения.
      */
-    @SneakyThrows
-    public void editMessage(EditMessageText editMessageText) {
+    public void editMessage(EditMessageText editMessageText) throws TelegramApiException {
         if (!ObjectUtils.isEmpty(editMessageText)) {
             bot.execute(editMessageText);
         }
@@ -86,7 +82,7 @@ public class MessageExecutor {
      * Обработчик сообщений.
      */
     @RabbitHandler
-    public void receiver(NotificationDto notificationDto) {
+    public void receiver(NotificationDto notificationDto) throws TelegramApiException {
         log.info("received message: ({})", notificationDto.toString());
 
         StringBuilder answerText = new StringBuilder();

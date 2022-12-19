@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -52,7 +53,7 @@ public class ActionService {
      *
      * @param message входящее сообщение.
      */
-    public void updateDate(Message message) throws ApplicationException {
+    public void updateDate(Message message) throws TelegramApiException {
         log.info("invoke updateDate: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));
@@ -79,7 +80,7 @@ public class ActionService {
      *
      * @param message входящее сообщение.
      */
-    public void joinChatByCode(Message message) throws ApplicationException {
+    public void joinChatByCode(Message message) throws TelegramApiException {
         log.info("invoke joinChatByCode: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));
@@ -101,7 +102,7 @@ public class ActionService {
      * @param update       новый update.
      * @param callBackData данные для обновления.
      */
-    public void setNotificationLevel(Update update, String callBackData) throws ApplicationException {
+    public void setNotificationLevel(Update update, String callBackData) throws TelegramApiException {
         log.info("invoke setNotificationLevel: ({}, {})", update.getCallbackQuery().getFrom().getId(), callBackData);
 
         Long userId = update.getCallbackQuery().getFrom().getId();
@@ -154,7 +155,7 @@ public class ActionService {
      *
      * @param message входящее сообщение.
      */
-    public void updateWishlist(Message message) throws ApplicationException {
+    public void updateWishlist(Message message) throws TelegramApiException {
         log.info("invoke updateWishlist: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         Message wait = messageExecutor.sendDefaultMessage(Answers.WAITING, message);
@@ -184,7 +185,7 @@ public class ActionService {
      *
      * @param message входящее сообщение.
      */
-    public void friendAdded(Message message) throws ApplicationException {
+    public void friendAdded(Message message) throws TelegramApiException {
         log.info("invoke friendAdded: ({}, {})", message.getChatId(), message.getFrom().getUserName());
 
         ErrorDescriptions.NO_INFO_ERROR.throwIfFalse(userService.checkUser(message.getFrom().getId()));

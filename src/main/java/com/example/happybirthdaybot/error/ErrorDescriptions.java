@@ -82,4 +82,5 @@ public enum ErrorDescriptions {
     public ApplicationException exception() {
         return new ApplicationException(applicationError());
     }
+
 }
